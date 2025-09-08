@@ -8,3 +8,9 @@ yes.pub
 
 yes
 yes.pub
+
+yes
+yes.pub
+*.pem
+*.key
+id_*
