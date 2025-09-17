@@ -74,7 +74,7 @@ for (site in  big_hole_sites$site_no) {
     temp_data = readNWISuv(siteNumbers = site,
                             parameterCd = c("00010", '00060'),
                             startDate = "1900-01-01",
-                            endDate = Sys.Date()) # Running on 8/21/2025 - Updateable
+                            endDate = '2025-08-21') #  Updateable but defined here for reprex
     
     if (!is.null(temp_data) && nrow(temp_data) > 0) {
       temp_data$site_no = site
@@ -248,10 +248,10 @@ merged = daily_max_complete |>
   select(site_no, date, tmmx, tmmn)) |>
   mutate(site_year = paste0(site_no,'_',year(date))) 
   
-# compute the GAMM for both all data and for the subset of gages that meet
+# compute the GLMM for both all data and for the subset of gages that meet
 # the symetric_site_years critearia above
-gamm_all_data = fit_exceedance_bam(merged, threshold = 21, break_date = break_point)
-gamm_filtered_data = fit_exceedance_bam(
+glmm_all_data = fit_exceedance_bam(merged, threshold = 21, break_date = break_point)
+glmm_filtered_data = fit_exceedance_bam(
   merged  |>
     #filter for the season of interest
   dplyr::mutate(year = lubridate::year(date)) |>
@@ -265,19 +265,19 @@ gamm_filtered_data = fit_exceedance_bam(
 
 # convert the table to an image to describe results
 make_exceedance_fixed_effects_table(
-  fit       = gamm_all_data$fit,
+  fit       = glmm_all_data$fit,
   threshold = 21,
   html_path = "~/bighole-hydro/figs/exceedance_fixed_effects_all_data.html",
   png_path  = "~/bighole-hydro/figs/exceedance_fixed_effects_all_data.png",
-  interp_text = interpret_exceedance_gamm(gamm_all_data$fit, break_date = break_point)
+  interp_text = interpret_exceedance_glmm(glmm_all_data$fit, break_date = break_point)
 )
 
 make_exceedance_fixed_effects_table(
-  fit       = gamm_filtered_data$fit,
+  fit       = glmm_filtered_data$fit,
   threshold = 21,
   html_path = "~/bighole-hydro/figs/exceedance_fixed_effects_symetric.html",
   png_path  = "~/bighole-hydro/figs/exceedance_fixed_effects_symetric.png",
-  interp_text = interpret_exceedance_gamm(gamm_filtered_data$fit, break_date = break_point)
+  interp_text = interpret_exceedance_glmm(glmm_filtered_data$fit, break_date = break_point)
 )
 
 #####################################
@@ -285,26 +285,26 @@ make_exceedance_fixed_effects_table(
 #####################################
 
 # By-site (faceted) predictions at median flow & tmmn, period = most common:
-plot_exceedance_vs_tmmx(gamm_all_data$fit, gamm_all_data$dataset, mode = "by_site", 
+plot_exceedance_vs_tmmx(glmm_all_data$fit, glmm_all_data$dataset, mode = "by_site", 
                         save_path = '~/bighole-hydro/figs/exceedance_model_results_by_site.png')
 
 # Pre vs Post by-site (colored), at medians:
-plot_exceedance_vs_tmmx(gamm_all_data$fit, gamm_all_data$dataset, mode = "prepost_by_site", 
+plot_exceedance_vs_tmmx(glmm_all_data$fit, glmm_all_data$dataset, mode = "prepost_by_site", 
                         save_path = '~/bighole-hydro/figs/exceedance_model_results_prepost_by_site.png')
 
 # Single fixed-effects curve (random effects excluded):
-plot_exceedance_vs_tmmx(gamm_all_data$fit, gamm_all_data$dataset, mode = "fixed", 
+plot_exceedance_vs_tmmx(glmm_all_data$fit, glmm_all_data$dataset, mode = "fixed", 
                         save_path = '~/bighole-hydro/figs/exceedance_model_results_fixed.png')
 
 # Single fixed-effects pre/post overlay:
-plot_exceedance_vs_tmmx(gamm_all_data$fit, gamm_all_data$dataset, mode = "fixed_prepost", 
+plot_exceedance_vs_tmmx(glmm_all_data$fit, glmm_all_data$dataset, mode = "fixed_prepost", 
                         save_path = '~/bighole-hydro/figs/exceedance_model_results_fixed_prepost.png')
 
 #####################################
 #  SUMMERISE RESULTS WITH EXAMPLES  #
 #####################################
 
-summary_all = summarize_exceedance_gamm(gamm_all_data$fit, gamm_all_data$dataset)
+summary_all = summarize_exceedance_glmm(glmm_all_data$fit, glmm_all_data$dataset)
 summary_all
 
 #####################################

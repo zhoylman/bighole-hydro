@@ -384,7 +384,7 @@ make_exceedance_fixed_effects_table = function(
     png_path    = NULL
 ) {
   # ------------------------------------------------------------------------------
-  # Title:    Fixed-Effects Table (AR(1) Binomial GAMM) with ORs & 95% CI
+  # Title:    Fixed-Effects Table (AR(1) Binomial GLMM) with ORs & 95% CI
   # Author:   Zachary H. Hoylman
   # Date:     2025-08-20
   #
@@ -469,7 +469,7 @@ make_exceedance_fixed_effects_table = function(
     dplyr::select(Term, estimate, se, z, p, OR, `95% CI (OR)`) |>
     gt::gt() |>
     gt::tab_header(
-      title    = gt::md("**Exceedance Model (AR(1) GAMM): Fixed Effects**"),
+      title    = gt::md("**Exceedance Model (AR(1) GLMM): Fixed Effects**"),
       subtitle = paste0("Outcome: Pr(stream daily max > ", threshold, " °C)")
     ) |>
     gt::cols_label(
@@ -739,7 +739,7 @@ fit_exceedance_bam = function(data,
                               threshold  = 21,
                               break_date = as.Date("2017-01-01")) {
   # ------------------------------------------------------------------------------
-  # Title:    Fit AR(1) Binomial GAMM for >21°C Exceedance (site RE + tmmx slopes)
+  # Title:    Fit AR(1) Binomial GLMM for >21°C Exceedance (site RE + tmmx slopes)
   # Author:   Zachary H. Hoylman
   # Date:     2025-08-20
   #
@@ -874,14 +874,14 @@ fit_exceedance_bam = function(data,
   )
 }
 
-interpret_exceedance_gamm = function(fit, scale_flow = 100, break_date = NULL, threshold = 21) {
+interpret_exceedance_glmm = function(fit, scale_flow = 100, break_date = NULL, threshold = 21) {
   # ------------------------------------------------------------------------------
-  # Title:    Automated Interpretation of Exceedance GAMM Results (dynamic period)
+  # Title:    Automated Interpretation of Exceedance GLMM Results (dynamic period)
   # Author:   Zachary H. Hoylman
   # Date:     2025-08-21
   #
   # Description:
-  #   Extracts fixed effects from a binomial GAMM/BAM fit and produces a standardized
+  #   Extracts fixed effects from a binomial GLMM/BAM fit and produces a standardized
   #   interpretation paragraph. Discharge effects are reported per +`scale_flow` CFS.
   #   The pre/post "period" term/year is detected from the model (e.g., periodpre2017),
   #   or can be supplied via `break_date`.
@@ -1241,17 +1241,17 @@ plot_exceedance_vs_tmmx = function(
   p
 }
 
-summarize_exceedance_gamm = function(fit, dataset,
+summarize_exceedance_glmm = function(fit, dataset,
                                       tmmx_vals = c(15, 20, 25),
                                       delta_temps = c(5, 10),
                                       flow_scale = 100) {
   # ------------------------------------------------------------------------------
-  # Title:    Summarize Exceedance GAMM Effects (ORs and Probabilities)
+  # Title:    Summarize Exceedance GLMM Effects (ORs and Probabilities)
   # Author:   Zachary H. Hoylman
   # Date:     8-21-2025
   #
   # Description:
-  #   Given a fitted binomial GAMM (mgcv::bam) of exceedance probability,
+  #   Given a fitted binomial GLMM (mgcv::bam) of exceedance probability,
   #   this function:
   #     * extracts odds ratios per +1 °C (tmmx, tmmn) and per +100 CFS (flow),
   #     * computes odds ratios for multi-degree increments (e.g., +5°C, +10°C),
